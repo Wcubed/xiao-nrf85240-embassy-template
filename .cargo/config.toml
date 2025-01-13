@@ -1,6 +1,13 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 runner = "./flash.sh"
-rustflags = ["-C", "link-arg=-Tlink.x", "-C", "link-arg=--nmagic"]
+rustflags = [
+    "-C",
+    "link-arg=-Tlink.x",
+    "-C",
+    "link-arg=-Tdefmt.x",
+    "-C",
+    "link-arg=--nmagic",
+]
 
 [build] # probe-rs does not support dfu over usb, so we use a custom run script instead.
 target = "thumbv7em-none-eabi"

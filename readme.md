@@ -13,7 +13,7 @@ To run on the target device: `cargo run --release`.
 If you get something like `permission denied: '/dev/ttyACM0'` on manjaro, you need to add yourself to the `uucp` group: `sudo usermod -a -G uucp <username>`.
 Log out and log back in for the changes to take effect.
 
-This example is adapted from [Wumpf's seeed example](https://github.com/Wumpf/Seeed-nRF52840-Sense-projects/tree/main).
+This example is a combination from [Wumpf's seeed example](https://github.com/Wumpf/Seeed-nRF52840-Sense-projects/tree/main), and the embassy-rs examples.
 
 Wumpf's readme is below this line.
 
