@@ -1,9 +1,10 @@
-This is an example project that shows how to flash an seeed stdio xiao-nrf85240 over USB.
-It includes a way of rebooting the microcontroller into bootloader mode, without having to double-press the reset button. (I am not sure if this functions with the factory-default bootloader. It could be that you need the bootloader from [adafruit](https://github.com/mike1808/PIO_SEEED_Adafruit_nRF52_Arduino)).
+This is an example project that shows how to run rust, using embassy-rs onto a seeed stdio xiao-nrf85240. It flashes over USB without needing a JTAG or other debugger.
+
+The template includes a way of rebooting the microcontroller into bootloader mode, without having to double-press the reset button. (I am not sure if this functions with the factory-default bootloader. It could be that you need the bootloader from [adafruit](https://github.com/mike1808/PIO_SEEED_Adafruit_nRF52_Arduino)).
 
 Before running: Check COM_PORT in `flash.sh`, and replace it if necessary.
 
-To flash the target device: `cargo run --release`.
+To flash the target device: `cargo run --release`. The first time you will have to double press the reset button to enter bootloader mode. After that it should enter the bootloader automaically.
 
 - `arm-none-eabi-objcopy` is available on manjaro under the package name `extra/arm-none-eabi-binutils`.
 - `adafruit-nrfutil` is available on manjaro under the package name `python-adafruit-nrfutil`.
