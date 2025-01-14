@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use defmt::{info, panic};
+use defmt::panic;
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
 use embassy_nrf::gpio::{Level, Output, OutputDrive};
@@ -64,25 +64,23 @@ async fn main(_spawner: Spawner) {
     // Run the USB device.
     let usb_fut = usb.run();
 
+    let mut led_green = Output::new(p.P0_30, Level::Low, OutputDrive::Standard);
+
     // Do stuff with the class!
-    // TODO (2025-01-13): If we get a certain string, reboot into DFU mode.
-    // TODO (2025-01-13): Then add an echo call to `flash.sh` that writes that string into the serial device before flashing.
     let echo_fut = async {
         loop {
             class.wait_connection().await;
-            info!("Connected");
-            let _ = echo(&mut class).await;
-            info!("Disconnected");
+            let _ = reboot_on_magic_message(&mut class).await;
         }
     };
 
-    let mut led = Output::new(p.P0_26, Level::Low, OutputDrive::Standard);
+    let mut led_red = Output::new(p.P0_26, Level::Low, OutputDrive::Standard);
 
     let blink_fut = async {
         loop {
-            led.set_high();
+            led_red.set_high();
             Timer::after_millis(1000).await;
-            led.set_low();
+            led_red.set_low();
             Timer::after_millis(1000).await;
         }
     };
@@ -101,14 +99,24 @@ impl From<EndpointError> for Disconnected {
     }
 }
 
-async fn echo<'d, T: Instance + 'd, P: VbusDetect + 'd>(
+async fn reboot_on_magic_message<'d, T: Instance + 'd, P: VbusDetect + 'd>(
     class: &mut CdcAcmClass<'d, Driver<'d, T, P>>,
 ) -> Result<(), Disconnected> {
     let mut buf = [0; 64];
+
     loop {
         let n = class.read_packet(&mut buf).await?;
         let data = &buf[..n];
-        info!("data: {:x}", data);
-        class.write_packet(data).await?;
+
+        //led.toggle();
+        //Timer::after_millis(500).await;
+
+        if data == "bootloader".as_bytes() {
+            // Reboot the controller in DFU mode.
+            // This should be the documentation, but the site is not reachable currently:
+            // https://devzone.nordicsemi.com/f/nordic-q-a/50839/start-dfu-mode-or-open_bootloader-from-application-by-function-call
+            pac::POWER.gpregret().write(|w| w.0 = 0xB1);
+            cortex_m::peripheral::SCB::sys_reset();
+        }
     }
 }
