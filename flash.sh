@@ -5,7 +5,7 @@ set -euo
 # To figure out what the device name is:
 # plug the device in. Double press the reset button.
 # Run `dmesg` and it should list something like:
-# [sda] Attached SCSI removable disk
+# ttyACM0: USB ACM device
 COM_PORT=/dev/ttyACM0
 CRATE=$CARGO_PKG_NAME
 
