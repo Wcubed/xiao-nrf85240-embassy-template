@@ -24,6 +24,7 @@ embassy-nrf = { version = "0.3.1", features = [
     "gpiote",
     "unstable-pac",
     "time",
+    "reset-pin-as-gpio",
 ] }
 
 cortex-m = { version = "0.7.6", features = ["critical-section-single-core"] }

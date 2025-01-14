@@ -64,8 +64,6 @@ async fn main(_spawner: Spawner) {
     // Run the USB device.
     let usb_fut = usb.run();
 
-    let mut led_green = Output::new(p.P0_30, Level::Low, OutputDrive::Standard);
-
     // Do stuff with the class!
     let echo_fut = async {
         loop {
@@ -108,14 +106,14 @@ async fn reboot_on_magic_message<'d, T: Instance + 'd, P: VbusDetect + 'd>(
         let n = class.read_packet(&mut buf).await?;
         let data = &buf[..n];
 
-        //led.toggle();
-        //Timer::after_millis(500).await;
-
         if data == "bootloader".as_bytes() {
             // Reboot the controller in DFU mode.
-            // This should be the documentation, but the site is not reachable currently:
-            // https://devzone.nordicsemi.com/f/nordic-q-a/50839/start-dfu-mode-or-open_bootloader-from-application-by-function-call
-            pac::POWER.gpregret().write(|w| w.0 = 0xB1);
+            // The magic number has been taken from the arduino bootloader:
+            // https://github.com/mike1808/PIO_SEEED_Adafruit_nRF52_Arduino/blob/master/cores/nRF5/wiring.c#L26
+            let dfu_magic_serial_only_reset = 0x4E;
+            pac::POWER
+                .gpregret()
+                .write(|w| w.0 = dfu_magic_serial_only_reset);
             cortex_m::peripheral::SCB::sys_reset();
         }
     }
